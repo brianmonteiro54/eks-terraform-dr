@@ -1,0 +1,16 @@
+# Bytecode / cache do Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Artefatos de build/empacotamento (pip install ., build, etc.)
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Ambientes virtuais
+.venv/
+venv/
+env/
+
