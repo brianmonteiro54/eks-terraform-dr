@@ -77,34 +77,36 @@ Duas contas AWS, um artefato no meio. A captura exige apenas permissões de **le
 Duas contas AWS com fronteiras de permissão distintas, e um único artefato versionado entre elas. Na origem, só leitura; toda a escrita acontece no destino, durante o `apply`.
 
 ```mermaid
-flowchart TD
-    A["Cluster EKS + infraestrutura<br/>conta de origem · só leitura"]
-    B["eks_importer (CLI)<br/>manual · na sua máquina"]
-    C["eks_exporter (Lambda)<br/>automático · por evento"]
-    D["Receita em código no Git<br/>Terraform · versionada"]
-    E{{"Já existe no destino?<br/>conta de destino · grava aqui"}}
-    F["Reaproveita<br/>"]
-    G["Cria o que falta<br/>"]
-    H["Recria o cluster<br/>sempre, do zero"]
+flowchart TB
+    TOP["find-or-create<br/>verifica recurso por recurso na conta de destino"]
 
-    A -->|só lê| B
-    A -->|só lê| C
-    B --> D
-    C --> D
-    D -->|terraform apply| H
-    D -->|terraform apply| E
-    E -->|sim, já existe| F
-    E -->|não existe| G
+    S1["CENÁRIO 1 · conta cheia<br/>tudo já existe no destino"]
+    S2["CENÁRIO 2 · conta parcial<br/>alguns recursos existem, outros não"]
+    S3["CENÁRIO 3 · conta vazia<br/>nada existe no destino"]
 
-    classDef origem fill:#E6F1FB,stroke:#185FA5,stroke-width:2px,color:#0C447C;
-    classDef ferramenta fill:#EEEDFE,stroke:#534AB7,stroke-width:2px,color:#26215C;
-    classDef destino fill:#EAF3DE,stroke:#3B6D11,stroke-width:2px,color:#173404;
-    classDef reuse fill:#F1EFE8,stroke:#5F5E5A,stroke-width:2px,color:#2C2C2A;
+    R1["nada a fazer"]
+    R2["cria só o que falta<br/>+ recria o cluster EKS"]
+    R3["cria tudo do zero<br/>+ cria o cluster EKS"]
 
-    class A origem;
-    class B,C,D ferramenta;
-    class E,G,H destino;
-    class F reuse;
+    TOP --> S1
+    TOP --> S2
+    TOP --> S3
+    S1 --> R1
+    S2 --> R2
+    S3 --> R3
+
+    classDef top fill:#fff8c5,stroke:#9a6700,color:#4d2d00;
+    classDef full fill:#dafbe1,stroke:#1a7f37,color:#0f5323;
+    classDef part fill:#ddf0ff,stroke:#0969da,color:#0a3069;
+    classDef empty fill:#f3eafc,stroke:#8250df,color:#3c1e70;
+    classDef noop fill:#eaeef2,stroke:#6e7781,color:#1f2328;
+    class TOP top
+    class S1 full
+    class S2 part
+    class S3 empty
+    class R1 noop
+    class R2 part
+    class R3 empty
 ```
 
 A decisão "reutilizar ou criar" **não** é tomada na geração , fica deferida para o `plan`, quando o `aws_lookup.py` consulta o destino e já sabe o que existe lá. Por isso o mesmo pacote cobre recuperação na mesma conta e migração cross-account sem reescrita, e é idempotente por construção.
