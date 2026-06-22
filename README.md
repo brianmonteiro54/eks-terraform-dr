@@ -300,7 +300,7 @@ terraform apply
 
 > **Atenção ao `aws_profile`:** ele é o profile do **destino**. Nunca coloque o profile da origem ali, ou os lookups consultariam a conta errada.
 
-Para o empacotamento Lambda (`eks_exporter`), veja [`lambda/eks_exporter/README.md`](lambda/eks_exporter/README.md). Para detalhes do CLI, veja [`python_import/README.md`](python_import/README.md).
+Para o empacotamento Lambda (`eks_exporter`), veja [`lambda/eks_exporter/README.md`](lambda/README.md). Para detalhes do CLI, veja [`python_import/README.md`](python_import/README.md).
 
 ---
 
